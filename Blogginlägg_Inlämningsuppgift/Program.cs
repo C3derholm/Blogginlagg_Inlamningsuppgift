@@ -1,9 +1,12 @@
+using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var connString = "Data Source=SHARKPC\\SQLEXPRESS; Initial Catalog=BlogDB;Integrated Security=SSPI;TrustServerCertificate=True;";
 

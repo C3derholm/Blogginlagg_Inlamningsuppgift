@@ -1,7 +1,8 @@
-﻿using Blogginlägg_Inlämningsuppgift.Data;
+﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Data;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
 using Blogginlägg_Inlämningsuppgift.Data.Entities;
-using Bloginlägg_Inlämningsuppgift.Core.Interfacs;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,14 +47,37 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
             await _context.SaveChangesAsync();
         }
 
-        public Task<User?> GetByIdAsync(int userid)
+        public async Task<UserDTO?> GetByIdAsync(int userid)
         {
-            throw new NotImplementedException();
+            return await _context.Users
+                .Where(u => u.UserID == userid)
+                .Select(u => new UserDTO
+                {
+                    UserID = u.UserID,
+                    Username = u.Username,
+                    Email = u.Email
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public Task<int> LoginAsync(LoginDTO dto)
+        public async Task<int?> LoginAsync(LoginDTO dto)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+
+            if (result != PasswordVerificationResult.Success)
+            {
+                return null;
+            }
+
+            return user.UserID;
+
         }
 
         public async Task<int> RegisterAsync(RegisterUserDTO dto)

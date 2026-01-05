@@ -1,4 +1,4 @@
-﻿namespace Bloginlägg_Inlämningsuppgift.Core.Services
+﻿namespace Blogginlägg_Inlämningsuppgift.Core.Services
 {
     public class CategoryService
     {
