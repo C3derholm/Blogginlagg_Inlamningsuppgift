@@ -4,16 +4,16 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
 {
     public interface IPostService
     {
-        Task<int> CreateAsync(PostDTO dto);
+        Task<int> CreateAsync(CreatePostDTO dto);
         Task<PostDTO?> GetByIdAsync(int postId);
 
         Task<List<PostDTO>> GetAllAsync();
 
-        Task UpdateAsync(int postId, PostDTO dto);
+        Task<bool> UpdateAsync(int postId,int userId, UpdatePostDTO dto);
 
-        Task DeleteAsync(int postId);
+        Task <bool>DeleteAsync(int postId,int userId);
 
         Task<List<PostDTO>> SearchByTitleAsync(string query);
-        Task<List<PostDTO>> SearchByCategoryAsync(string categoryName);
+        Task<List<PostDTO>> SearchByCategoryAsync(int categoryId);
     }
 }

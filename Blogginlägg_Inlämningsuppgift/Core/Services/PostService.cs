@@ -15,7 +15,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
             _context = context;
         }
 
-        public async Task<int> CreateAsync(PostDTO dto)
+        public async Task<int> CreateAsync(CreatePostDTO dto)
         {
             bool userExists = await _context.Users.AnyAsync(u => u.UserID == dto.UserID);
             if (!userExists) throw new InvalidOperationException("User does not exist");
@@ -39,34 +39,117 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
 
         }
 
-        public Task DeleteAsync(int postId)
+        public async Task<bool> DeleteAsync(int postId, int userId)
         {
-            throw new NotImplementedException();
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.PostID == postId);
+            if (post == null) 
+                return false;
+
+            if (post.UserID != userId)
+            {
+                throw new InvalidOperationException("You are not the owner of this Blogpost");
+            }
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
      
-        public Task<List<PostDTO>> GetAllAsync()
+        public async Task<List<PostDTO>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Posts
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new PostDTO
+                {
+                    PostID = p.PostID,
+                    Title = p.Title,
+                    ContentText = p.ContentText,
+                    CreatedAt = p.CreatedAt,
+                    UserID = p.UserID,
+                    UserName = p.User.Username,
+                    CategoryName = p.Category.CategoryName,
+                    CategoryID = p.CategoryID
+
+                    })
+                .ToListAsync();
+
+
         }
 
-        public Task<PostDTO?> GetByIdAsync(int postId)
+        public async Task<PostDTO?> GetByIdAsync(int postId)
         {
-            throw new NotImplementedException();
+            return await _context.Posts
+                .Where(p => p.PostID == postId)
+                .Select(p => new PostDTO
+                {
+                    PostID = p.PostID,
+                    Title = p.Title,
+                    ContentText = p.ContentText,
+                    CreatedAt = p.CreatedAt,
+                    UserID = p.UserID,
+                    UserName = p.User.Username,
+                    CategoryName = p.Category.CategoryName,
+                    CategoryID = p.CategoryID
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public Task<List<PostDTO>> SearchByCategoryAsync(string categoryName)
+        public async Task<List<PostDTO>> SearchByCategoryAsync(int categoryId)
         {
-            throw new NotImplementedException();
+            return await _context.Posts
+                .Where(p => p.CategoryID == categoryId)
+                .Select(p => new PostDTO
+                {
+                    PostID = p.PostID,
+                    Title = p.Title,
+                    ContentText = p.ContentText,
+                    CreatedAt = p.CreatedAt,
+                    UserID = p.UserID,
+                    CategoryID = p.CategoryID,
+                })
+                .ToListAsync();
+
         }
 
-        public Task<List<PostDTO>> SearchByTitleAsync(string query)
+        public async Task<List<PostDTO>> SearchByTitleAsync(string query)
         {
-            throw new NotImplementedException();
+            return await _context.Posts
+                .Where(p => p.Title.Contains(query))
+                .Select(p => new PostDTO
+                {
+                    PostID= p.PostID,
+                    Title= p.Title,
+                    ContentText= p.ContentText,
+                    CreatedAt= p.CreatedAt,
+                    UserID= p.UserID,
+                    CategoryID= p.CategoryID
+
+                })
+                .ToListAsync();
         }
 
-        public Task UpdateAsync(int postId, PostDTO dto)
+        public async Task<bool> UpdateAsync(int postId, int userID, UpdatePostDTO dto)
         {
-            throw new NotImplementedException();
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.PostID == postId);
+            if (post == null) return false;
+
+            if (post.UserID != userID)
+            {
+               throw new InvalidOperationException("You are not the owner of this Blogpost");
+
+            }
+
+            var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryID == dto.CategoryID);
+            if (!categoryExists) throw new InvalidOperationException("Category does not exist");
+
+            post.Title = dto.Title; 
+            post.ContentText = dto.ContentText;
+            post.CategoryID = dto.CategoryID;
+            
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
