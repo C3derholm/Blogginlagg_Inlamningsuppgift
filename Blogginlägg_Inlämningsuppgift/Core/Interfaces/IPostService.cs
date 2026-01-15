@@ -14,6 +14,6 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
         Task <bool>DeleteAsync(int postId,int userId);
 
         Task<List<PostDTO>> SearchByTitleAsync(string query);
-        Task<List<PostDTO>> SearchByCategoryAsync(int categoryId);
+        Task<List<PostDTO>> SearchByCategoryAsync(string categoryName);
     }
 }

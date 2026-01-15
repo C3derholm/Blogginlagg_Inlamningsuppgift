@@ -95,10 +95,12 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<PostDTO>> SearchByCategoryAsync(int categoryId)
+        public async Task<List<PostDTO>> SearchByCategoryAsync(string categoryName)
         {
+            var name= categoryName.Trim().ToLower();
+
             return await _context.Posts
-                .Where(p => p.CategoryID == categoryId)
+                .Where(p => p.Category.CategoryName.Contains(name))
                 .Select(p => new PostDTO
                 {
                     PostID = p.PostID,
