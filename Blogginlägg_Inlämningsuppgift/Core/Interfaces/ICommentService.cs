@@ -10,6 +10,6 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
       Task<List<CommentDTO>> GetByPostIdAsync(int postId);
 
       Task<bool> DeleteAsync(int commentId, int userId);
-        Task GetAllAsync();
+      Task GetAllAsync();
     }
 }

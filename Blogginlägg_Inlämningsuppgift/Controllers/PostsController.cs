@@ -1,10 +1,13 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
-namespace Bloginlägg_Inlämningsuppgift.Controllers
+// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
+namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -17,14 +20,22 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             _postService = postService;
         }
 
-        [HttpPost]
-
+        [Authorize]
+        [HttpPost]        
         public async Task<IActionResult> Create([FromBody] CreatePostDTO dto)
         {
             try
             {
-                var postId = await _postService.CreateAsync(dto);
-                return Ok(new { postId });
+                var userId = int.Parse(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier)!
+                    );
+
+                dto.UserID = userId;
+
+                var postId= await _postService.CreateAsync(dto);
+
+                return Ok(new {postId});
+
             }
             catch (InvalidOperationException ex)
             {
@@ -32,7 +43,7 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpGet]
 
         public async Task<IActionResult> GettAll()
@@ -40,7 +51,7 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             var posts = await _postService.GetAllAsync();
             return Ok(posts);
         }
-
+        [Authorize]
         [HttpGet("{postId:int}")]
 
         public async Task<IActionResult> GetById(int postId)
@@ -53,9 +64,8 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             }
             return Ok(post);
         }
-
+        [AllowAnonymous]
         [HttpGet("Search/title")]
-
         public async Task<IActionResult> SearchByTitle([FromQuery] string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -65,7 +75,7 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             var posts = await _postService.SearchByTitleAsync(query);
             return Ok(posts);
         }
-
+        [AllowAnonymous]
         [HttpGet("search/category")]
         public async Task<IActionResult> SearchByCategory([FromQuery] string categoryName)
         {
@@ -77,44 +87,35 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             var posts = await _postService.SearchByCategoryAsync(categoryName);
             return Ok(posts);
         }
-
+        
+        [Authorize]
         [HttpPut("{postId:int}")]
-
-        public async Task<IActionResult> Update(int postId, [FromQuery] int userId, [FromBody] UpdatePostDTO dto)
-
+        public async Task<IActionResult> Update(int postId, [FromBody] UpdatePostDTO dto)
         {
-            if (userId <= 0)
-            {
-                return BadRequest("Invalid user ID");
-            }
-
             try
             {
+                // Hämta användarens ID från JWT-token
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
                 var updated = await _postService.UpdateAsync(postId, userId, dto);
                 if (!updated) return NotFound();
                 return NoContent();
             }
-
             catch (InvalidOperationException ex)
             {
                 return Forbid();
             }
-
-
-
-
         }
 
+        [Authorize]
         [HttpDelete("{postId:int}")]
-
-        public async Task<IActionResult> Delete(int postId, [FromQuery] int userId)
+        public async Task<IActionResult> Delete(int postId)
         {
-            if (userId <= 0)
-            {
-                return BadRequest("Invalid user ID");
-            }
             try
             {
+                // Hämta användarens ID från JWT-token
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
                 var deleted = await _postService.DeleteAsync(postId, userId);
                 if (!deleted) return NotFound();
                 return NoContent();

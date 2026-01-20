@@ -7,7 +7,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
     {
         Task<int> RegisterAsync(RegisterUserDTO dto);
 
-        Task<int?> LoginAsync(LoginDTO dto);
+        Task<User?> LoginAsync(LoginDTO dto);
 
         Task UpdateAsync(int userid, UpdateUserDTO dto);
 

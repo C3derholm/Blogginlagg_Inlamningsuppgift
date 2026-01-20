@@ -1,9 +1,12 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
-namespace Bloginlägg_Inlämningsuppgift.Controllers
+// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
+namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,8 +19,8 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             _commentService = commentService;
         }
 
-        [HttpPost]
-
+        [Authorize]
+        [HttpPost]     
         public async Task<IActionResult> Create([FromBody] CreateCommentDTO dto)
         {
             try
@@ -31,6 +34,7 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("post/{postId:int}")]
 
         public async Task<IActionResult> GetByPostId(int postId)
@@ -39,12 +43,15 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             return Ok(comments);
         }
 
+        [Authorize]
         [HttpDelete("{commentId:int}")]
-
-        public async Task<IActionResult> Delete(int commentId, [FromQuery] int userId)
+        public async Task<IActionResult> Delete(int commentId)
         {
             try
             {
+                // Hämta användarens ID från JWT-token
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
                 var deleted = await _commentService.DeleteAsync(commentId, userId);
                 if (!deleted)
                 {

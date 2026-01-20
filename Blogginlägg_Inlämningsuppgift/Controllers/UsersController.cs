@@ -1,6 +1,9 @@
-﻿using Blogginlägg_Inlämningsuppgift.Data.DTO;
-using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Data.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
 
 namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
@@ -9,26 +12,31 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
-        [HttpPost("login")]
+        [AllowAnonymous]
+        [HttpPost("login")]        
             public async Task <IActionResult> Login([FromBody] LoginDTO dto)
         {
-            var userId = await _userService.LoginAsync(dto);
+            var user = await _userService.LoginAsync(dto);
             
-            if (userId == null)
+            if (user == null)
             {
                 return Unauthorized("Invalid username or password.");
             }
-            return Ok(new { userId });
+
+            var token =_tokenService.CreateToken(user.UserID, user.Username);
+            return Ok(new { token });
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
-
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO dto)
         {
             try
@@ -44,8 +52,8 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
             
         }
 
+        [Authorize]
         [HttpGet("{userId}")]
-
         public async Task<IActionResult> GetById(int userId)
         {
             var user = await _userService.GetByIdAsync(userId);
@@ -56,6 +64,41 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
             return Ok(user);
         }
 
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateUserDTO dto)
+        {
+            try
+            {
+                // Hämta användarens ID från JWT-token
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                await _userService.UpdateAsync(userId, dto);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> Delete()
+        {
+            try
+            {
+                // Hämta användarens ID från JWT-token
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                await _userService.DeleteAsync(userId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

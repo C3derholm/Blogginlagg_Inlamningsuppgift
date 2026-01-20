@@ -1,9 +1,11 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bloginlägg_Inlämningsuppgift.Controllers
+// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
+namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,7 +18,7 @@ namespace Bloginlägg_Inlämningsuppgift.Controllers
             _categoryService = categoryService;
         }
 
-        
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

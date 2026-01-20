@@ -60,7 +60,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int?> LoginAsync(LoginDTO dto)
+        public async Task<User?> LoginAsync(LoginDTO dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
 
@@ -76,7 +76,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
                 return null;
             }
 
-            return user.UserID;
+            return user;
 
         }
 
@@ -102,9 +102,27 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
             return user.UserID;
         }
 
-        public Task UpdateAsync(int userid, UpdateUserDTO dto)
+        public async Task UpdateAsync(int userid, UpdateUserDTO dto)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userid);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            // Kontrollera att den nya emailen inte redan används av någon annan
+            var emailExists = await _context.Users
+                .AnyAsync(u => u.Email == dto.Email && u.UserID != userid);
+
+            if (emailExists)
+            {
+                throw new InvalidOperationException("Email is already in use by another user");
+            }
+
+            user.Email = dto.Email;
+
+            await _context.SaveChangesAsync();
         }
     }
 }
