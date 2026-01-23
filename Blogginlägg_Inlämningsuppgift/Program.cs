@@ -13,12 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// JWT-inställningar (måste matcha TokenService)
+
 var issuer = "http://localhost:5205";
 var audience = "http://localhost:5205";
-var key = "mykey1234567&%%485734579453%&//1255362";
+var key = builder.Configuration["Authentication:SigningKey"];
 
-// Auth
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Swagger (Authorize-knapp) + lås bara där [Authorize] finns
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Blog API", Version = "v1" });

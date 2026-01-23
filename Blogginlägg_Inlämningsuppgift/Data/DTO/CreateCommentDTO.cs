@@ -4,6 +4,6 @@
     {
         public string ContentText { get; set; } = null!;
         public int PostID { get; set; }
-        public int UserID { get; set; }
+        
     }
 }

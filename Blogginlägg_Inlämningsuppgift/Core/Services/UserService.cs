@@ -1,4 +1,5 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Core.Mapping;
 using Blogginlägg_Inlämningsuppgift.Data;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
 using Blogginlägg_Inlämningsuppgift.Data.Entities;
@@ -51,12 +52,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
         {
             return await _context.Users
                 .Where(u => u.UserID == userid)
-                .Select(u => new UserDTO
-                {
-                    UserID = u.UserID,
-                    Username = u.Username,
-                    Email = u.Email
-                })
+                .Select(u => u.ToDTO())
                 .FirstOrDefaultAsync();
         }
 
@@ -111,7 +107,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
                 throw new InvalidOperationException("User not found");
             }
 
-            // Kontrollera att den nya emailen inte redan används av någon annan
+            
             var emailExists = await _context.Users
                 .AnyAsync(u => u.Email == dto.Email && u.UserID != userid);
 
@@ -121,6 +117,27 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
             }
 
             user.Email = dto.Email;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDTO dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.CurrentPassword);
+
+            if (result != PasswordVerificationResult.Success)
+            {
+                throw new InvalidOperationException("Current password is incorrect");
+            }
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
 
             await _context.SaveChangesAsync();
         }

@@ -7,10 +7,10 @@ namespace Blogginlägg_Inlämningsuppgift.Data.Entities
         [Key]
         public int PostID { get; set; }
 
-        [StringLength(100)]
+        [StringLength(200)]
         public string Title { get; set; } = null!;
 
-        [StringLength(100)]
+        [StringLength(8000)]
         public string ContentText { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; }

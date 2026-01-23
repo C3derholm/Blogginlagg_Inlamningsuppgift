@@ -3,8 +3,6 @@ using Blogginlägg_Inlämningsuppgift.Data.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
 namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
     [Route("api/[controller]")]

@@ -4,10 +4,8 @@
     {
         public string Title { get; set; } = null!;
 
-        public string ContentText { get; set; } = null!;
-
-        public int UserID { get; set; }
-
+        public string ContentText { get; set; } = null!;      
+        
         public int CategoryID { get; set; }
     }
 }

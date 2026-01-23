@@ -11,7 +11,7 @@ namespace Blogginlägg_Inlämningsuppgift.Data.Entities
         [StringLength (50)]
         public string Username { get; set; } = null!;
 
-        [StringLength (100)]
+        [StringLength (300)]
         public string Email { get; set; } = null!;
 
         public string PasswordHash { get; set; } = null!;

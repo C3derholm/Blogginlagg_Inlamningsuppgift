@@ -14,5 +14,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
         Task DeleteAsync(int userid);
 
         Task<UserDTO?> GetByIdAsync(int userid);
+
+        Task ChangePasswordAsync(int userId, ChangePasswordDTO dto);
     }
 }

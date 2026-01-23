@@ -4,7 +4,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Interfaces
 {
     public interface IPostService
     {
-        Task<int> CreateAsync(CreatePostDTO dto);
+        Task<int> CreateAsync(CreatePostDTO dto, int userId);
         Task<PostDTO?> GetByIdAsync(int postId);
 
         Task<List<PostDTO>> GetAllAsync();

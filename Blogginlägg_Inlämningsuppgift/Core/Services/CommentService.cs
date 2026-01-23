@@ -1,4 +1,5 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Core.Mapping;
 using Blogginlägg_Inlämningsuppgift.Data;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
 using Blogginlägg_Inlämningsuppgift.Data.Entities;
@@ -14,10 +15,10 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
         {
             _context = context;
         }
-        public async Task<int> CreateAsync(CreateCommentDTO dto)
+        public async Task<int> CreateAsync(CreateCommentDTO dto, int userId)
         {
             {
-                var userExists = await _context.Users.AnyAsync(u => u.UserID == dto.UserID);
+                var userExists = await _context.Users.AnyAsync(u => u.UserID == userId);
                 if (!userExists)
                     throw new InvalidOperationException("User does not exist.");
 
@@ -28,14 +29,14 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
                 if (post == null)
                     throw new InvalidOperationException("Post does not exist.");
 
-                if (post.UserID == dto.UserID)
+                if (post.UserID == userId)
                     throw new InvalidOperationException("You cannot comment on your own post.");
 
                 var comment = new Comment
                 {
                     CommentText = dto.ContentText,
                     PostID = dto.PostID,
-                    UserID = dto.UserID,
+                    UserID = userId,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -47,12 +48,15 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
 
         public async Task<bool> DeleteAsync(int commentId, int userId)
         {
-            var comment = await _context.Comments.FirstOrDefaultAsync(c => c.CommentID == commentId);
+            var comment = await _context.Comments.Include(c=>c.Post).FirstOrDefaultAsync(c => c.CommentID == commentId);
             if (comment == null) return false;
 
-            if (comment.UserID != userId)
+            bool isCommentOwner = comment.UserID == userId;
+            bool isPostOwner = comment.Post?.UserID == userId;
+           
+            if(!isCommentOwner && !isPostOwner)
             {
-                throw new InvalidOperationException("You are not the owner of this comment.");
+                throw new InvalidOperationException("You are not authorized to delete this comment");
             }
 
             _context.Comments.Remove(comment);
@@ -68,16 +72,10 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
         public async Task<List<CommentDTO>> GetByPostIdAsync(int postId)
         {
             return await _context.Comments
+            .Include(c => c.User)
             .Where(c => c.PostID == postId)
             .OrderBy(c => c.CreatedAt)
-            .Select(c => new CommentDTO
-            {
-                CommentID = c.CommentID,
-                ContentText = c.CommentText,
-                CreatedAt = c.CreatedAt,
-                PostID = c.PostID,
-                UserName = c.User.Username
-            })
+            .Select(c => c.ToDTO())
             .ToListAsync();
         }
     }

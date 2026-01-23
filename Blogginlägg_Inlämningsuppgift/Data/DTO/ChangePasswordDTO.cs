@@ -1,0 +1,9 @@
+namespace Blogginlägg_Inlämningsuppgift.Data.DTO
+{
+    public class ChangePasswordDTO
+    {
+        public string CurrentPassword { get; set; } = null!;
+
+        public string NewPassword { get; set; } = null!;
+    }
+}

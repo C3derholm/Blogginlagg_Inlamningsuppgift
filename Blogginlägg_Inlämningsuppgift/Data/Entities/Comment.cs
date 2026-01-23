@@ -7,7 +7,7 @@ namespace Blogginlägg_Inlämningsuppgift.Data.Entities
         [Key]
         public int CommentID { get; set; }
 
-        [StringLength(200)]
+        [StringLength(2000)]
         public string CommentText { get; set; } 
 
         public DateTime CreatedAt { get; set; }

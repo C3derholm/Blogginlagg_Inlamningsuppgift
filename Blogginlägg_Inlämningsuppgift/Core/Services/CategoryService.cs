@@ -1,4 +1,5 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
+using Blogginlägg_Inlämningsuppgift.Core.Mapping;
 using Blogginlägg_Inlämningsuppgift.Data;
 using Blogginlägg_Inlämningsuppgift.Data.DTO;
 using Blogginlägg_Inlämningsuppgift.Data.Entities;
@@ -18,11 +19,7 @@ namespace Blogginlägg_Inlämningsuppgift.Core.Services
         public async Task<List<CategoryDTO>> GetAllAsync()
         {
             return await _context.Categories
-                .Select(c => new CategoryDTO
-                {
-                    CategoryID = c.CategoryID,
-                    CategoryName = c.CategoryName
-                })
+                .Select(c => c.ToDTO())
                 .ToListAsync();
         }
 

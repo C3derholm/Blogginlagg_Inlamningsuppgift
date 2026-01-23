@@ -70,10 +70,27 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                // Hämta användarens ID från JWT-token
+                
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 await _userService.UpdateAsync(userId, dto);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                await _userService.ChangePasswordAsync(userId, dto);
                 return NoContent();
             }
             catch (InvalidOperationException ex)
@@ -88,7 +105,7 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                // Hämta användarens ID från JWT-token
+                
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 await _userService.DeleteAsync(userId);

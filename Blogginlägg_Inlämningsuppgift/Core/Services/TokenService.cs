@@ -1,5 +1,4 @@
 ﻿using Blogginlägg_Inlämningsuppgift.Core.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,11 +6,14 @@ using System.Text;
 
 namespace Blogginlägg_Inlämningsuppgift.Core.Services
 {
-    public class TokenService : ITokenService
+    public class TokenService(IConfiguration configuration) : ITokenService
+
     {
+
         private const string Issuer = "http://localhost:5205";
         private const string Audience = "http://localhost:5205";
-        private const string Key = "mykey1234567&%%485734579453%&//1255362";
+        private string Key = configuration["Authentication:SigningKey"];
+       
         public string CreateToken(int userId, string username)
         {
             var claims = new List<Claim>

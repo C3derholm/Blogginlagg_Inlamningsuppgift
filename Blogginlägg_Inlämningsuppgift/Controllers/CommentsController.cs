@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-
-// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
 namespace Blogginlägg_Inlämningsuppgift.Controllers
+
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -25,7 +24,10 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                var commentId = await _commentService.CreateAsync(dto);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                
+
+                var commentId = await _commentService.CreateAsync(dto,userId);
                 return Ok(new { commentId });
             }
             catch (InvalidOperationException ex)
@@ -49,7 +51,7 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                // Hämta användarens ID från JWT-token
+                
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var deleted = await _commentService.DeleteAsync(commentId, userId);

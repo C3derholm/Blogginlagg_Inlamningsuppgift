@@ -5,7 +5,7 @@
         public int PostID { get; set; }
         public string Title { get; set; } = null!;
         public string ContentText { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
+        public string CreatedAt { get; set; } = null!;
         public int UserID { get; set; }
         public string UserName { get; set; } = null!;
         public int CategoryID { get; set; }

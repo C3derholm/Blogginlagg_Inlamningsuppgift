@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Security.Claims;
-
-// Stavning korrigerad: "Bloginlägg" -> "Blogginlägg"
 namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
     [Route("api/[controller]")]
@@ -28,11 +26,9 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
             {
                 var userId = int.Parse(
                     User.FindFirstValue(ClaimTypes.NameIdentifier)!
-                    );
+                    );               
 
-                dto.UserID = userId;
-
-                var postId= await _postService.CreateAsync(dto);
+                var postId= await _postService.CreateAsync(dto,userId);
 
                 return Ok(new {postId});
 
@@ -46,14 +42,14 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         [AllowAnonymous]
         [HttpGet]
 
-        public async Task<IActionResult> GettAll()
+        public async Task<IActionResult> GetAll()
         {
             var posts = await _postService.GetAllAsync();
             return Ok(posts);
         }
+        
         [Authorize]
         [HttpGet("{postId:int}")]
-
         public async Task<IActionResult> GetById(int postId)
 
         {
@@ -64,6 +60,7 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
             }
             return Ok(post);
         }
+
         [AllowAnonymous]
         [HttpGet("Search/title")]
         public async Task<IActionResult> SearchByTitle([FromQuery] string query)
@@ -94,7 +91,7 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                // Hämta användarens ID från JWT-token
+               
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var updated = await _postService.UpdateAsync(postId, userId, dto);
@@ -113,7 +110,7 @@ namespace Blogginlägg_Inlämningsuppgift.Controllers
         {
             try
             {
-                // Hämta användarens ID från JWT-token
+                
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var deleted = await _postService.DeleteAsync(postId, userId);
