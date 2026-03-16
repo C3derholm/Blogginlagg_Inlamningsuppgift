@@ -20,7 +20,7 @@ namespace Blogginlägg_Inlämningsuppgift.Data.Entities
 
         public User User { get; set; } = null!;
 
-        public int CategoryID { get; set; } 
+        public int CategoryID { get; set; }
 
         public Category Category { get; set; } 
 

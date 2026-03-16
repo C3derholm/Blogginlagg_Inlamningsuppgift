@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 namespace Blogginlägg_Inlämningsuppgift.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class PostsController : ControllerBase
